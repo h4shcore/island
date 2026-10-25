@@ -75,7 +75,7 @@ rec {
       };
       pill = {
         clockWithMedia = opt types.bool true "Keep showing the clock in the pill while media is playing.";
-        batteryIcon = opt types.bool true "Show the battery as an icon only (no percentage) in the pill. Hidden when there is no battery.";
+        batteryIcon = opt types.bool false "Show the battery as an icon only (no percentage) in the pill. Hidden when there is no battery.";
       };
       behavior = {
         hoverToExpand = opt types.bool true "Expand on hover (false = only through IPC / launcher).";
