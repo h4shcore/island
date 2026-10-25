@@ -18,7 +18,7 @@ Item {
         anchors.fill: parent
         radius: height / 2
         opacity: t.available ? 1 : 0.4
-        color: ma.containsMouse ? Theme.surfaceHiest : Theme.surfaceHi
+        color: ma.containsMouse ? Theme.cardHi : Theme.card
         scale: ma.pressed ? 0.96 : 1.0
         Behavior on color { ColorAnimation { duration: 160 } }
         Behavior on scale { SpringAnimation { spring: 8; damping: 0.5; epsilon: 0.002 } }

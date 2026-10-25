@@ -65,7 +65,6 @@ rec {
         iconFont = opt types.str "Material Symbols Rounded" "Icon font family.";
         topGap = opt types.int 10 "Pixels between the screen edge and the island.";
         shadow = opt types.bool true "Drop shadow under the island.";
-        sheen = opt types.bool true "Faint highlight on top of the pill.";
         sliderAccent = opt types.bool true "Control-center sliders use the accent colour (false = neutral).";
       };
       clock = {

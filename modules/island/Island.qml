@@ -205,7 +205,7 @@ PanelWindow {
         width: dim.w
         height: dim.h
         radius: Math.min(height / 2, 36)
-        color: Theme.surface
+        color: Theme.bg
         border.width: 0
 
         transformOrigin: Item.Top
@@ -246,27 +246,6 @@ PanelWindow {
         WheelHandler {
             onWheel: e => { if (root.expanded && !root.notifOn && !root.modal && !(root.mode === "center" && root.overSlider)) root.page = e.angleDelta.y < 0 ? "center" : "main" }
         }
-
-        // ---- top sheen for depth ----
-        Rectangle {
-            visible: Config.sheen
-            anchors.fill: parent
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "#16ffffff" }
-                GradientStop { position: 0.55; color: "#00ffffff" }
-            }
-        }
-
-
-
-
-
-
-
-
-
-
-
 
         // ===== views (one file each in views/) =====
         IdleView      { id: idleView;      island: root }

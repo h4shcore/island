@@ -250,8 +250,8 @@ View {
         opacity: wallList.opacity
         gradient: Gradient {
             orientation: Gradient.Horizontal
-            GradientStop { position: 0.0; color: Theme.surface }
-            GradientStop { position: 1.0; color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0) }
+            GradientStop { position: 0.0; color: Theme.bg }
+            GradientStop { position: 1.0; color: Qt.rgba(0, 0, 0, 0) }
         }
     }
     Rectangle {
@@ -261,8 +261,8 @@ View {
         opacity: wallList.opacity
         gradient: Gradient {
             orientation: Gradient.Horizontal
-            GradientStop { position: 0.0; color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0) }
-            GradientStop { position: 1.0; color: Theme.surface }
+            GradientStop { position: 0.0; color: Qt.rgba(0, 0, 0, 0) }
+            GradientStop { position: 1.0; color: Theme.bg }
         }
     }
 

@@ -21,13 +21,13 @@ Item {
 
     readonly property bool accented: Config.sliderAccent && !dimmed
     readonly property color fillColor: dimmed ? Theme.fgDim : (Config.sliderAccent ? Theme.primary : Theme.fg)
-    readonly property color onFill: accented ? Theme.primaryFg : Theme.surface
+    readonly property color onFill: accented ? Theme.primaryFg : Theme.bg
 
     // track
     Rectangle {
         anchors.fill: parent
         radius: height / 2
-        color: Theme.surface
+        color: Theme.bg
     }
 
     // fill: never narrower than a circle, so the icon always sits on it

@@ -50,7 +50,7 @@ View {
             implicitWidth: 60
             implicitHeight: 60
             name: "lock"; size: 22; filled: false
-            fill: Theme.surfaceHi
+            fill: Theme.card
             onClicked: { island.closeIsland(); Power.run("lock") }
         }
     }
@@ -86,7 +86,7 @@ View {
             implicitWidth: 60
             implicitHeight: 60
             name: "power_settings_new"; size: 22; filled: false
-            fill: Theme.surfaceHi
+            fill: Theme.card
             onClicked: island.page = "power"
         }
     }
@@ -96,14 +96,14 @@ View {
         x: 0; y: 154
         width: parent.width; height: 72
         radius: 24
-        color: Theme.surfaceHi
+        color: Theme.card
 
         Txt { x: 14; y: 9; text: "Sound"; font.pixelSize: 13; font.weight: Font.DemiBold }
         Rectangle {
             anchors.right: parent.right; anchors.rightMargin: 12
             y: 8
             width: Math.max(24, volTxt.implicitWidth + 16); height: 24; radius: 12
-            color: Theme.surface
+            color: Theme.bg
             Txt {
                 id: volTxt
                 anchors.centerIn: parent
@@ -131,14 +131,14 @@ View {
         x: 0; y: 236
         width: parent.width; height: 72
         radius: 24
-        color: Theme.surfaceHi
+        color: Theme.card
 
         Txt { x: 14; y: 9; text: "Display"; font.pixelSize: 13; font.weight: Font.DemiBold }
         Rectangle {
             anchors.right: parent.right; anchors.rightMargin: 12
             y: 8
             width: Math.max(24, briTxt.implicitWidth + 16); height: 24; radius: 12
-            color: Theme.surface
+            color: Theme.bg
             Txt {
                 id: briTxt
                 anchors.centerIn: parent
@@ -165,7 +165,7 @@ View {
         width: parent.width
         height: view.height - y - 14
         radius: 24
-        color: Theme.surfaceHi
+        color: Theme.card
 
         Txt { x: 16; y: 12; text: "Notifications"; font.pixelSize: 12; color: Theme.fgDim }
 

@@ -17,7 +17,6 @@ Singleton {
     readonly property string iconFont: ad.look.iconFont
     readonly property int topGap: ad.look.topGap
     readonly property bool shadow: ad.look.shadow
-    readonly property bool sheen: ad.look.sheen
     readonly property bool sliderAccent: ad.look.sliderAccent        // true = matugen primary, false = neutral
 
     // ---- clock (Qt format strings) ----
@@ -106,7 +105,6 @@ Singleton {
                 property string iconFont: "Material Symbols Rounded"
                 property int topGap: 10
                 property bool shadow: true
-                property bool sheen: true
                 property bool sliderAccent: true
             }
             property JsonObject clock: JsonObject {

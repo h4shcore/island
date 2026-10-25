@@ -4,7 +4,6 @@
     "iconFont": "Material Symbols Rounded",
     "topGap": 10,
     "shadow": true,
-    "sheen": true,
     "sliderAccent": true
   },
   "clock": {

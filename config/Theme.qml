@@ -8,6 +8,9 @@ import Quickshell.Io
 Singleton {
     id: root
 
+    // island body: always solid black
+    readonly property color bg: "#000000"
+
     readonly property color surface: ad.surface
     readonly property color surfaceHi: ad.surfaceHi
     readonly property color surfaceHiest: ad.surfaceHiest
@@ -19,14 +22,24 @@ Singleton {
     readonly property color error: ad.error
     readonly property color outline: ad.outline
 
+    // control-center cards: neutral container with a wash of the primary accent,
+    // so they visibly follow matugen (plain surface_container_* is almost grey)
+    readonly property color card: Qt.tint(surfaceHi, Qt.rgba(primary.r, primary.g, primary.b, 0.16))
+    readonly property color cardHi: Qt.tint(surfaceHiest, Qt.rgba(primary.r, primary.g, primary.b, 0.26))
+
     readonly property string font: Config.font
     readonly property string iconFont: Config.iconFont
 
+    // matugen rewrites the file in place; wait a beat so we never read it half written
+    Timer { id: reloadTimer; interval: 80; onTriggered: colorsFile.reload() }
+
     FileView {
+        id: colorsFile
         path: Quickshell.env("HOME") + "/.config/quickshell/colors.json"
         watchChanges: true
         printErrors: false
-        onFileChanged: reload()
+        onFileChanged: reloadTimer.restart()
+        onLoadFailed: reloadTimer.restart()
         adapter: JsonAdapter {
             id: ad
             property string surface: "#141218"
