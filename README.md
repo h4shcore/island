@@ -130,6 +130,7 @@ Applying any wallpaper from the switcher regenerates it. Until then you get buil
 | Open the island | hover it, or any IPC call below |
 | Launch an app | `launcher toggle`, type, `Enter` |
 | Clipboard history | `clipboard toggle`, `Enter` copies the entry |
+| Emoji from the launcher | type `:smile` (or `:smile:`) in the launcher; `:` alone shows recents; `Enter` copies |
 | Emoji / symbols | `emoji toggle`, type to search, arrows / `Tab` (categories), `Enter` copies |
 | Calendar | `calendar toggle`, or tap the clock on the hover state; `h j k l` days, `H L` months, `t` today |
 | Tray | `tray toggle`; click = activate, right click = menu, middle click = secondary action |

@@ -14,7 +14,15 @@ Singleton {
 
     readonly property var all: DesktopEntries.applications.values.filter(e => !e.noDisplay)
 
+    // ":smile" / ":smile:" searches emoji + symbols instead of apps (":" alone = recents)
+    readonly property bool emojiMode: query.startsWith(":")
+
     readonly property var results: {
+        if (emojiMode) {
+            const t = query.slice(1).replace(/:\s*$/, "").trim()
+            const list = t === "" ? Emoji.recentList().slice(0, Config.launcherMaxResults) : Emoji.find(t, Config.launcherMaxResults)
+            return list.map(e => ({ c: e.c, name: e.name, sub: e.kw }))
+        }
         const q = query.trim().toLowerCase()
         const list = all
         const out = []
@@ -80,6 +88,7 @@ Singleton {
 
     function launch(e) {
         if (!e) return
+        if (emojiMode) { Emoji.pick(e); return }
         const c = Object.assign({}, counts)
         c[e.id] = (c[e.id] || 0) + 1
         counts = c

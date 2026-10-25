@@ -179,14 +179,26 @@ View {
                 color: row.sel ? Theme.secondaryContainer : "transparent"
                 Behavior on color { ColorAnimation { duration: 110 } }
             }
-            IconImage {
+            Item {
                 id: appIcon
                 x: 10
                 anchors.verticalCenter: parent.verticalCenter
                 width: 34; height: 34
-                source: Quickshell.iconPath(row.modelData.icon, "application-x-executable")
                 scale: row.sel ? 1.06 : 1.0
                 Behavior on scale { SpringAnimation { spring: 7.5; damping: 0.5; epsilon: 0.002 } }
+                IconImage {
+                    anchors.fill: parent
+                    visible: !Apps.emojiMode
+                    source: Apps.emojiMode ? "" : Quickshell.iconPath(row.modelData.icon, "application-x-executable")
+                }
+                Text {
+                    anchors.centerIn: parent
+                    visible: Apps.emojiMode
+                    text: Apps.emojiMode ? row.modelData.c : ""
+                    font.pixelSize: 26
+                    color: Theme.fg
+                    renderType: Text.QtRendering
+                }
             }
             Column {
                 anchors.left: appIcon.right
@@ -199,7 +211,7 @@ View {
                 Txt {
                     width: parent.width
                     visible: text !== ""
-                    text: row.modelData.genericName || row.modelData.comment || ""
+                    text: Apps.emojiMode ? (row.modelData.sub || "") : (row.modelData.genericName || row.modelData.comment || "")
                     font.pixelSize: 11
                     color: Theme.fgDim
                 }
@@ -209,7 +221,7 @@ View {
                 anchors.right: parent.right
                 anchors.rightMargin: row.sel ? 14 : 20
                 anchors.verticalCenter: parent.verticalCenter
-                name: "keyboard_return"
+                name: Apps.emojiMode ? "content_copy" : "keyboard_return"
                 size: 18
                 color: Theme.fgDim
                 opacity: row.sel ? 1 : 0

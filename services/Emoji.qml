@@ -51,26 +51,31 @@ Singleton {
         return m
     }
 
-    readonly property var results: {
-        const words = query.trim().toLowerCase().split(/\s+/).filter(w => w.length > 0)
-        if (words.length > 0) {
-            const hits = []
-            for (const e of all) {
-                let score = 0
-                let ok = true
-                for (const w of words) {
-                    if (!e.hay.includes(w)) { ok = false; break }
-                    const n = e.name.toLowerCase()
-                    if (n === w) score -= 3
-                    else if (n.startsWith(w)) score -= 2
-                    else if (n.includes(w)) score -= 1
-                }
-                if (ok) hits.push({ e: e, s: score })
+    // search the whole dataset (also used by the launcher's :name: shortcut)
+    function find(text, limit) {
+        const words = text.trim().toLowerCase().split(/\s+/).filter(w => w.length > 0)
+        if (words.length === 0) return []
+        const hits = []
+        for (const e of all) {
+            let score = 0
+            let ok = true
+            for (const w of words) {
+                if (!e.hay.includes(w)) { ok = false; break }
+                const n = e.name.toLowerCase()
+                if (n === w) score -= 3
+                else if (n.startsWith(w)) score -= 2
+                else if (n.includes(w)) score -= 1
             }
-            hits.sort((a, b) => (a.s - b.s) || (a.e.i - b.e.i))
-            return hits.slice(0, 400).map(h => h.e)
+            if (ok) hits.push({ e: e, s: score })
         }
-        if (category === "recent") return recent.map(c => byChar[c]).filter(e => e !== undefined)
+        hits.sort((a, b) => (a.s - b.s) || (a.e.i - b.e.i))
+        return hits.slice(0, limit).map(h => h.e)
+    }
+    function recentList() { return recent.map(c => byChar[c]).filter(e => e !== undefined) }
+
+    readonly property var results: {
+        if (query.trim() !== "") return find(query, 400)
+        if (category === "recent") return recentList()
         return byCat[category] || []
     }
     readonly property var current: results[selected] ?? null
