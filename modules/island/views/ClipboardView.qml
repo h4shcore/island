@@ -15,14 +15,17 @@ View {
 
     readonly property int wantW: Config.clipboardWidth
     readonly property int wantH: 70 + Math.max(1, Math.min(Clip.results.length, Config.clipboardRows)) * 52 + 14
+    property int openTick: 0
 
     function shown() {
         clipInput.text = ""
         Clip.selected = 0
         Clip.refresh()
+        openTick++
         island.vimNormal = Config.vimKeys && Config.launcherStartNormal
-        Qt.callLater(() => clipInput.forceActiveFocus())
+        Qt.callLater(() => { if (view.active) clipInput.forceActiveFocus() })
     }
+    onVisibleChanged: if (visible && active) clipInput.forceActiveFocus()
     active: island.mode === "clipboard"
     dims: island.sizes.clipboard
 
@@ -115,6 +118,7 @@ View {
         x: 0; y: 70
         width: parent.width
         height: Math.max(1, Math.min(Clip.results.length, Config.clipboardRows)) * 52
+        Behavior on height { SpringAnimation { spring: 4.8; damping: 0.50; epsilon: 0.25 } }
         clip: true
         boundsBehavior: Flickable.StopAtBounds
         model: Clip.results
@@ -127,9 +131,44 @@ View {
             required property var modelData
             required property int index
             readonly property bool sel: index === Clip.selected
+            readonly property int seenTick: view.openTick
 
             width: clipList.width
             height: 52
+            scale: row.sel ? 1.0 : 0.985
+            Behavior on scale { SpringAnimation { spring: 8.0; damping: 0.55; epsilon: 0.002 } }
+
+            property real enterOp: 1
+            property real enterY: 0
+            opacity: enterOp
+            transform: Translate { y: row.enterY }
+
+            onSeenTickChanged: {
+                if (row.index < Config.clipboardRows) {
+                    rowAnim.stop()
+                    enterOp = 0
+                    enterY = 10
+                    rowPause.duration = 40 + row.index * 18
+                    rowAnim.restart()
+                }
+            }
+            Component.onCompleted: {
+                if (view.active && row.index < Config.clipboardRows) {
+                    enterOp = 0
+                    enterY = 10
+                    rowPause.duration = 40 + row.index * 18
+                    rowAnim.restart()
+                }
+            }
+
+            SequentialAnimation {
+                id: rowAnim
+                PauseAnimation { id: rowPause; duration: 40 }
+                ParallelAnimation {
+                    NumberAnimation { target: row; property: "enterOp"; to: 1; duration: 190; easing.type: Easing.OutCubic }
+                    NumberAnimation { target: row; property: "enterY";  to: 0; duration: 240; easing.type: Easing.OutBack; easing.overshoot: 1.2 }
+                }
+            }
 
             Rectangle {
                 anchors.fill: parent
@@ -137,7 +176,7 @@ View {
                 anchors.bottomMargin: 2
                 radius: 16
                 color: row.sel ? Theme.secondaryContainer : "transparent"
-                Behavior on color { ColorAnimation { duration: 90 } }
+                Behavior on color { ColorAnimation { duration: 110 } }
             }
             Rectangle {
                 id: appIcon
@@ -145,7 +184,9 @@ View {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 34; height: 34; radius: 17
                 color: row.sel ? Theme.primary : Theme.surfaceHi
-                Behavior on color { ColorAnimation { duration: 90 } }
+                scale: row.sel ? 1.06 : 1.0
+                Behavior on color { ColorAnimation { duration: 110 } }
+                Behavior on scale { SpringAnimation { spring: 7.5; damping: 0.5; epsilon: 0.002 } }
                 Icon {
                     anchors.centerIn: parent
                     name: row.modelData.image ? "image" : "notes"
@@ -173,12 +214,14 @@ View {
             Icon {
                 id: hint
                 anchors.right: parent.right
-                anchors.rightMargin: 14
+                anchors.rightMargin: row.sel ? 14 : 20
                 anchors.verticalCenter: parent.verticalCenter
                 name: "content_copy"
                 size: 18
                 color: Theme.fgDim
                 opacity: row.sel ? 1 : 0
+                Behavior on anchors.rightMargin { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                Behavior on opacity { NumberAnimation { duration: 120 } }
             }
             MouseArea {
                 anchors.fill: parent

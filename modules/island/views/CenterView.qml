@@ -201,9 +201,13 @@ View {
                     onClicked: Notifs.clearHistory()
                 }
             }
+            IconButton { anchors.verticalCenter: parent.verticalCenter; implicitWidth: 28; implicitHeight: 28; name: "timer"; size: 17; filled: Countdown.active; color: Countdown.active ? Theme.primary : Theme.fg; onClicked: island.page = "timer" }
             IconButton { anchors.verticalCenter: parent.verticalCenter; implicitWidth: 28; implicitHeight: 28; name: "search"; size: 17; filled: false; onClicked: island.page = "launcher" }
             IconButton { anchors.verticalCenter: parent.verticalCenter; implicitWidth: 28; implicitHeight: 28; name: "content_paste"; size: 17; filled: false; onClicked: island.page = "clipboard" }
             IconButton { anchors.verticalCenter: parent.verticalCenter; implicitWidth: 28; implicitHeight: 28; name: "wallpaper"; size: 17; filled: false; onClicked: island.page = "walls" }
+            IconButton { anchors.verticalCenter: parent.verticalCenter; implicitWidth: 28; implicitHeight: 28; name: "emoji_emotions"; size: 17; filled: false; onClicked: island.page = "emoji" }
+            IconButton { anchors.verticalCenter: parent.verticalCenter; implicitWidth: 28; implicitHeight: 28; name: "calendar_month"; size: 17; filled: false; onClicked: island.page = "calendar" }
+            IconButton { anchors.verticalCenter: parent.verticalCenter; implicitWidth: 28; implicitHeight: 28; name: "widgets"; size: 17; filled: false; onClicked: island.page = "tray" }
         }
 
         Txt {

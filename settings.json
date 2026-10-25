@@ -105,6 +105,22 @@
     "placeholder": "Search clipboard",
     "watch": false
   },
+  "emoji": {
+    "width": 560,
+    "columns": 10,
+    "rows": 5,
+    "placeholder": "Search emoji and symbols",
+    "recentMax": 30,
+    "typeAfterCopy": false
+  },
+  "calendar": {
+    "firstDay": 1,
+    "weekNumbers": false
+  },
+  "tray": {
+    "columns": 6,
+    "hidePassive": false
+  },
   "keys": {
     "vim": true,
     "launcherStartNormal": false

@@ -8,6 +8,9 @@ It lives at the top of the screen and grows into whatever you need:
 - **Power menu**: lock, log out, sleep, restart, shut down (with confirmation)
 - **Launcher**: fuzzy app search with usage ranking
 - **Clipboard**: searchable history (cliphist)
+- **Emoji + symbols**: searchable picker with categories, recents, and math / arrows / currency / Greek
+- **Calendar**: month view with week numbers, day-of-year and "in N days"
+- **Tray**: StatusNotifier icons; right-click menus open inside the island
 - **Wallpapers**: endless horizontal strip, plus live matugen controls (scheme, contrast, accent)
 
 Hover the island to expand it. Everything is also reachable through IPC and keybinds.
@@ -22,15 +25,15 @@ island/
 ├── settings.json           all user settings (hot-reloaded)
 ├── config/                 Config (reads settings.json), Theme (matugen colours)
 ├── services/               state + system access, no UI: Apps, Clip, Clock, Controls,
-│                           Media, Notifs, Osd, Power, Ui, Wallpapers
+│                           Media, Notifs, Osd, Power, Ui, Wallpapers, Emoji, EmojiData
 ├── components/             reusable bits: Txt, Icon, IconButton, Toggle, VSlider,
 │                           Marquee, Art, Equalizer, View, PillToggle, HSlider
 ├── modules/island/
 │   ├── Island.qml          the window: state, timers, the morphing pill
 │   └── views/              one file per thing the pill can show:
 │       Idle, Media, Peek, Osd, Notif, Hub, Player,
-│       Center, Power, Wallpaper, Launcher, Clipboard
-├── ipc/                    one IPC target per file (island, launcher, clipboard, center, power, wallpaper)
+│       Center, Power, Wallpaper, Launcher, Clipboard, Emoji, Calendar, Tray
+├── ipc/                    one IPC target per file (island, launcher, clipboard, emoji, calendar, tray, center, power, wallpaper)
 ├── contrib/                matugen colour template
 ├── nix/ flake.nix package.nix   Nix packaging + NixOS / Home Manager modules
 ```
@@ -127,6 +130,9 @@ Applying any wallpaper from the switcher regenerates it. Until then you get buil
 | Open the island | hover it, or any IPC call below |
 | Launch an app | `launcher toggle`, type, `Enter` |
 | Clipboard history | `clipboard toggle`, `Enter` copies the entry |
+| Emoji / symbols | `emoji toggle`, type to search, arrows / `Tab` (categories), `Enter` copies |
+| Calendar | `calendar toggle`, or tap the clock on the hover state; `h j k l` days, `H L` months, `t` today |
+| Tray | `tray toggle`; click = activate, right click = menu, middle click = secondary action |
 | Power menu | `power toggle`, then a click, or `l` `o` `s` `r` `p`, `Enter` |
 | Change wallpaper | `wallpaper toggle`, arrows / `h` `l`, `Enter` |
 | Tweak colours | in the switcher press `t` (or the palette button) |
@@ -181,6 +187,9 @@ Accent **Wallpaper** = colours come from the image; picking a swatch themes from
 ```
 island ipc call launcher   toggle | open | close
 island ipc call clipboard  toggle | open | close | wipe
+island ipc call emoji      toggle | open | close | clearRecent
+island ipc call calendar   toggle | open | close
+island ipc call tray       toggle | open | close
 island ipc call center     toggle | open | close
 island ipc call wallpaper  toggle | open | close | next | prev | random | restore | refresh
 island ipc call wallpaper  set /path/to/img.png
@@ -216,6 +225,9 @@ Every key is optional. On Nix use `programs.island.settings.<section>.<key>` ins
 | `wallpapers` | `dir`, `setter`, `matugenMode`, `matugenScheme`, `matugenContrast`, `accentPresets`, `width`, `cardWidth`, `loop` |
 | `launcher` | `width`, `rows`, `maxResults`, `placeholder`, `terminal` |
 | `clipboard` | `width`, `rows`, `maxItems`, `placeholder`, `watch` |
+| `emoji` | `width`, `columns`, `rows`, `placeholder`, `recentMax`, `typeAfterCopy` (also types the pick; needs `wtype`) |
+| `calendar` | `firstDay` (0 = Sunday, 1 = Monday ...), `weekNumbers` |
+| `tray` | `columns`, `hidePassive` |
 | `keys` | `vim`, `launcherStartNormal` |
 
 The default `power.logout` tries niri, then Hyprland, then sway, then `loginctl terminate-user`.
@@ -235,6 +247,8 @@ Files island writes: `~/.local/state/island/wallpaper` (current image),
 |---|---|
 | Wallpaper won't change, header says "Setter failed" | `awww-daemon` isn't running |
 | Colours never change | matugen template missing (step 2a), or `matugen` not on PATH |
+| Emoji show as boxes | install a colour emoji font (`noto-fonts-color-emoji`; on Nix `fonts.packages = [ pkgs.noto-fonts-color-emoji ];`) |
+| Tray is empty | the app must support StatusNotifier (many Electron apps need their tray option on) |
 | Clipboard is empty | nothing feeds cliphist: set `clipboard.watch = true` or run the `wl-paste --watch` lines |
 | Icons show as words / boxes | Material Symbols Rounded font missing |
 | Brightness slider does nothing | no permission: install brightnessctl's udev rules / join the `video` group |

@@ -8,5 +8,9 @@ Scope {
     CenterIpc {}
     PowerIpc {}
     LockIpc {}
+    TimerIpc {}
     WallpaperIpc {}
+    EmojiIpc {}
+    CalendarIpc {}
+    TrayIpc {}
 }

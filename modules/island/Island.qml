@@ -17,20 +17,25 @@ PanelWindow {
 
     // ---- geometry table (pill size per mode) ----
     readonly property int topGap: Config.topGap
+    readonly property int liveExtraW: (Countdown.active ? 68 : 0) + (Privacy.active ? 14 : 0)
     readonly property var sizes: ({
-        idle:   { w: 132, h: 34  },
-        media:  { w: 226, h: 38  },
-        osd:    { w: 300, h: 48  },
+        idle:   { w: 132 + liveExtraW, h: 34  },
+        media:  { w: 226 + liveExtraW, h: 38  },
+        osd:    { w: Osd.label !== "" ? 340 : 300, h: 48  },
         peek:   { w: 390, h: 72  },
         notif:  { w: 430, h: 84  },
-        hub:    { w: 320, h: 112 },
+        hub:    { w: 360, h: 112 },
+        timer:  { w: 390, h: 142 },
         player: { w: 460, h: 192 },
         center: { w: 460, h: 482 },
         power:  { w: 560, h: 140 },
         // pages that size themselves
         walls:     { w: wallpaperView.wantW, h: wallpaperView.wantH },
         launcher:  { w: launcherView.wantW,  h: launcherView.wantH },
-        clipboard: { w: clipboardView.wantW, h: clipboardView.wantH }
+        clipboard: { w: clipboardView.wantW, h: clipboardView.wantH },
+        emoji:     { w: emojiView.wantW,     h: emojiView.wantH },
+        calendar:  { w: calendarView.wantW,  h: calendarView.wantH },
+        tray:      { w: trayView.wantW,      h: trayView.wantH }
     })
 
     // shared cover art: ONE item that morphs between layouts
@@ -44,15 +49,15 @@ PanelWindow {
 
     // ---- window ----
     anchors.top: true
-    implicitWidth: Math.max(sizes.player.w, sizes.walls.w, sizes.center.w, sizes.power.w, sizes.launcher.w, sizes.clipboard.w) + 80
-    implicitHeight: topGap + Math.max(sizes.center.h, sizes.walls.h, 70 + Config.launcherRows * 52 + 14, 70 + Config.clipboardRows * 52 + 14) + 56
+    implicitWidth: Math.max(sizes.player.w, sizes.walls.w, sizes.center.w, sizes.power.w, sizes.launcher.w, sizes.clipboard.w, sizes.timer.w, sizes.emoji.w, sizes.calendar.w, sizes.tray.w) + 80
+    implicitHeight: topGap + Math.max(sizes.center.h, sizes.walls.h, 70 + Config.launcherRows * 52 + 14, 70 + Config.clipboardRows * 52 + 14, 108 + Config.emojiRows * Math.floor((sizes.emoji.w - 32) / Config.emojiColumns) + 52, sizes.calendar.h, sizes.tray.h) + 56
     color: "transparent"
     // reserve space for the idle pill only; expanded states float over windows
     exclusionMode: ExclusionMode.Normal
     exclusiveZone: topGap + sizes.idle.h + 8
-    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "island"
-    WlrLayershell.keyboardFocus: (root.mode === "launcher" || root.mode === "walls" || root.mode === "clipboard" || root.mode === "power") ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: (root.mode === "launcher" || root.mode === "walls" || root.mode === "clipboard" || root.mode === "power" || root.mode === "timer" || root.mode === "emoji" || root.mode === "calendar") ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     mask: Region { item: pill }
 
     // ---- state ----
@@ -61,9 +66,31 @@ PanelWindow {
     property bool osdOn: false
     property bool notifOn: false
     property bool peekOn: false
-    property string page: "main"   // main | center | walls | launcher | clipboard | power
-    // launcher, wallpaper, clipboard and power pages grab the keyboard and stay open until closed
-    readonly property bool modal: page === "launcher" || page === "walls" || page === "clipboard" || page === "power"
+    property string page: "main"   // main | center | walls | launcher | clipboard | power | timer | emoji | calendar | tray
+    // launcher, wallpaper, clipboard, power and timer pages grab the keyboard and stay open until closed
+    readonly property bool modal: page === "launcher" || page === "walls" || page === "clipboard" || page === "power" || page === "timer" || page === "emoji" || page === "calendar"
+
+    // directional transition state between sibling expanded pages (-1 = left, 0 = vertical, 1 = right)
+    readonly property var modeSlots: ({
+        launcher: 1, clipboard: 2, emoji: 3, calendar: 4, timer: 5, hub: 6, player: 6, tray: 7, center: 8, walls: 9, power: 10
+    })
+    property int _lastSlot: 0
+    property int navDir: 0
+    function _resolveMode() {
+        if (expanded && page === "launcher") return "launcher"
+        if (expanded && page === "clipboard") return "clipboard"
+        if (expanded && page === "power") return "power"
+        if (expanded && page === "timer") return "timer"
+        if (expanded && page === "emoji") return "emoji"
+        if (expanded && page === "calendar") return "calendar"
+        if (Countdown.ringing) return "timer"
+        if (notifOn) return "notif"
+        if (expanded) return page === "center" ? "center" : page === "walls" ? "walls" : page === "tray" ? "tray" : (hasMedia ? "player" : (Countdown.active ? "timer" : "hub"))
+        if (osdOn) return "osd"
+        if (peekOn && hasMedia) return "peek"
+        if (mediaPlaying) return "media"
+        return "idle"
+    }
 
     // vim state (shared by launcher / clipboard / wallpapers: only one is ever active)
     property bool vimNormal: false     // launcher only: normal vs insert mode
@@ -105,17 +132,18 @@ PanelWindow {
         return d.percentage <= 0.15 ? Theme.error : Theme.fg
     }
 
-    // priority: notification > hover > osd > track-change peek > playing > idle
-    readonly property string mode: {
-        if (expanded && page === "launcher") return "launcher"
-        if (expanded && page === "clipboard") return "clipboard"
-        if (expanded && page === "power") return "power"
-        if (notifOn) return "notif"
-        if (expanded) return page === "center" ? "center" : page === "walls" ? "walls" : (hasMedia ? "player" : "hub")
-        if (osdOn) return "osd"
-        if (peekOn && hasMedia) return "peek"
-        if (mediaPlaying) return "media"
-        return "idle"
+    // priority: modal pages > ringing timer > notification > hover > osd > track-change peek > playing > idle
+    // pure: no side effects inside the binding (writing _lastSlot/navDir here caused the binding loop)
+    readonly property string _target: _resolveMode()
+    // plain property, only ever assigned from onTargetChanged below, after navDir is up to date
+    property string mode: _resolveMode()
+    on_TargetChanged: {
+        const s = modeSlots[_target] ?? 0
+        if (s !== _lastSlot) {
+            navDir = (_lastSlot > 0 && s > 0) ? (s > _lastSlot ? 1 : -1) : 0
+            _lastSlot = s
+        }
+        mode = _target
     }
 
     function fmt(s) {
@@ -143,10 +171,14 @@ PanelWindow {
         if (mode === "clipboard") clipboardView.shown()
         if (mode === "power") powerView.shown()
         if (mode === "walls") wallpaperView.shown()
+        if (mode === "timer") timerView.shown()
+        if (mode === "emoji") emojiView.shown()
+        if (mode === "calendar") calendarView.shown()
+        if (mode === "tray") trayView.shown()
         if (mode !== "player") { scrubbing = false; holdSeek = false }
     }
 
-    Connections { target: Osd;    function onTriggered()    { if (root.mode !== "center" && root.mode !== "walls" && root.mode !== "launcher" && root.mode !== "clipboard" && root.mode !== "power") { root.osdOn = true; osdTimer.restart() } } }
+    Connections { target: Osd;    function onTriggered()    { if (root.mode !== "center" && root.mode !== "walls" && root.mode !== "launcher" && root.mode !== "clipboard" && root.mode !== "power" && root.mode !== "timer" && root.mode !== "emoji" && root.mode !== "calendar") { root.osdOn = true; osdTimer.restart() } } }
     Connections { target: Media;  function onTrackChanged() { if (!Config.mediaPeek) return; root.peekOn = true;  peekTimer.restart()  } }
     Connections {
         target: Notifs
@@ -166,7 +198,7 @@ PanelWindow {
     // ---- IPC: open / toggle / close a page ----
     Timer { id: ipcTimer; interval: Config.ipcTimeout; onTriggered: if (!root.hoverRaw) root.expanded = false }
     function openPage(p) {
-        if (["main", "center", "walls", "launcher", "clipboard", "power"].indexOf(p) < 0) p = "center"
+        if (["main", "center", "walls", "launcher", "clipboard", "power", "timer", "emoji", "calendar", "tray"].indexOf(p) < 0) p = "center"
         page = p
         expanded = true
         if (modal) ipcTimer.stop(); else ipcTimer.restart()
@@ -256,12 +288,16 @@ PanelWindow {
         OsdView       { id: osdView;       island: root }
         NotifView     { id: notifView;     island: root }
         HubView       { id: hubView;       island: root }
+        TimerView     { id: timerView;     island: root }
         PlayerView    { id: playerView;    island: root }
         CenterView    { id: centerView;    island: root }
         WallpaperView { id: wallpaperView; island: root }
         LauncherView  { id: launcherView;  island: root }
         ClipboardView { id: clipboardView; island: root }
         PowerView     { id: powerView;     island: root }
+        EmojiView     { id: emojiView;     island: root }
+        CalendarView  { id: calendarView;  island: root }
+        TrayView      { id: trayView;      island: root }
 
         // ===== shared cover art (morphs between all layouts) =====
         Art {

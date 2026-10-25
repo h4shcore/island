@@ -143,6 +143,24 @@ rec {
           Leave off if your compositor already does.
         '';
       };
+      emoji = {
+        width = opt types.int 560 "Emoji picker width in px.";
+        columns = opt types.int 10 "Grid columns.";
+        rows = opt types.int 5 "Visible grid rows.";
+        placeholder = opt types.str "Search emoji and symbols" "Search box placeholder.";
+        recentMax = opt types.int 30 "Recently used entries kept.";
+        typeAfterCopy = opt types.bool false ''
+          Also type the pick into the focused window (needs `wtype`, add it via extraPackages).
+        '';
+      };
+      calendar = {
+        firstDay = opt types.int 1 "First day of the week: 0 = Sunday, 1 = Monday ...";
+        weekNumbers = opt types.bool false "Show ISO week numbers.";
+      };
+      tray = {
+        columns = opt types.int 6 "Icons per row.";
+        hidePassive = opt types.bool false "Hide tray items that report a passive status.";
+      };
       keys = {
         vim = opt types.bool true "Vim binds in the launcher, clipboard and wallpaper switcher.";
         launcherStartNormal = opt types.bool false "Open launcher / clipboard in normal mode instead of insert.";

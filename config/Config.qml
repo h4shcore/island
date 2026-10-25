@@ -94,6 +94,22 @@ Singleton {
     readonly property string clipboardPlaceholder: ad.clipboard.placeholder
     readonly property bool clipboardWatch: ad.clipboard.watch         // run wl-paste --watch cliphist store for you
 
+    // ---- emoji / symbol picker ----
+    readonly property int emojiWidth: ad.emoji.width
+    readonly property int emojiColumns: Math.max(4, ad.emoji.columns)
+    readonly property int emojiRows: Math.max(1, ad.emoji.rows)
+    readonly property string emojiPlaceholder: ad.emoji.placeholder
+    readonly property int emojiRecentMax: ad.emoji.recentMax
+    readonly property bool emojiTypeAfterCopy: ad.emoji.typeAfterCopy   // also type it with wtype (needs wtype)
+
+    // ---- calendar ----
+    readonly property int calendarFirstDay: ad.calendar.firstDay        // 0 = Sunday, 1 = Monday ...
+    readonly property bool calendarWeekNumbers: ad.calendar.weekNumbers
+
+    // ---- system tray ----
+    readonly property int trayColumns: ad.tray.columns
+    readonly property bool trayHidePassive: ad.tray.hidePassive
+
     // ---- keyboard ----
     readonly property bool vimKeys: ad.keys.vim                       // vim binds in launcher + wallpaper switcher
     readonly property bool launcherStartNormal: ad.keys.launcherStartNormal // false = open in insert mode
@@ -185,6 +201,22 @@ Singleton {
                 property int maxItems: 100
                 property string placeholder: "Search clipboard"
                 property bool watch: false
+            }
+            property JsonObject emoji: JsonObject {
+                property int width: 560
+                property int columns: 10
+                property int rows: 5
+                property string placeholder: "Search emoji and symbols"
+                property int recentMax: 30
+                property bool typeAfterCopy: false
+            }
+            property JsonObject calendar: JsonObject {
+                property int firstDay: 1
+                property bool weekNumbers: false
+            }
+            property JsonObject tray: JsonObject {
+                property int columns: 6
+                property bool hidePassive: false
             }
             property JsonObject keys: JsonObject {
                 property bool vim: true
