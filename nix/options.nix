@@ -91,6 +91,10 @@ rec {
         peekTimeout = opt types.int 3200 "Track card time (ms).";
         ipcTimeout = opt types.int 6000 "Auto-close for pages opened through IPC (ms).";
       };
+      hub = {
+        search = opt types.bool true "Show the app launcher button next to the clock in the hover view.";
+        controlCenter = opt types.bool true "Show the control center button next to the clock in the hover view.";
+      };
       controlCenter = {
         showBattery = opt types.bool true "Show the battery in the control center.";
       };

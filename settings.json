@@ -30,6 +30,10 @@
     "peekTimeout": 3200,
     "ipcTimeout": 6000
   },
+  "hub": {
+    "search": true,
+    "controlCenter": true
+  },
   "controlCenter": {
     "showBattery": true
   },

@@ -22,29 +22,13 @@ View {
         spacing: 2
 
         IconButton {
+            visible: Config.hubSearch
             implicitWidth: 32
             implicitHeight: 32
             name: "search"
             size: 18
             filled: false
             onClicked: island.page = "launcher"
-        }
-        IconButton {
-            implicitWidth: 32
-            implicitHeight: 32
-            name: "timer"
-            size: 18
-            filled: Countdown.active
-            color: Countdown.active ? Theme.primary : Theme.fg
-            onClicked: island.page = "timer"
-        }
-        IconButton {
-            implicitWidth: 32
-            implicitHeight: 32
-            name: "emoji_emotions"
-            size: 18
-            filled: false
-            onClicked: island.page = "emoji"
         }
     }
 
@@ -54,14 +38,7 @@ View {
         anchors.topMargin: 8
         spacing: 2
         IconButton {
-            implicitWidth: 32
-            implicitHeight: 32
-            name: "widgets"
-            size: 18
-            filled: false
-            onClicked: island.page = "tray"
-        }
-        IconButton {
+            visible: Config.hubControlCenter
             implicitWidth: 32
             implicitHeight: 32
             name: "tune"

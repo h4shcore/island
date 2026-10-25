@@ -43,6 +43,11 @@ Singleton {
     readonly property int peekTimeout: ad.behavior.peekTimeout
     readonly property int ipcTimeout: ad.behavior.ipcTimeout
 
+    // ---- idle hover view ----
+    // shortcut icons beside the clock in the hover view
+    readonly property bool hubSearch: ad.hub.search                    // app launcher
+    readonly property bool hubControlCenter: ad.hub.controlCenter
+
     // ---- control center ----
     readonly property bool showBattery: ad.controlCenter.showBattery
 
@@ -158,6 +163,10 @@ Singleton {
                 property int notifTimeout: 5200
                 property int peekTimeout: 3200
                 property int ipcTimeout: 6000
+            }
+            property JsonObject hub: JsonObject {
+                property bool search: true
+                property bool controlCenter: true
             }
             property JsonObject controlCenter: JsonObject {
                 property bool showBattery: true

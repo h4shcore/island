@@ -220,6 +220,7 @@ Every key is optional. On Nix use `programs.island.settings.<section>.<key>` ins
 | `clock` | `timeFormat` (`"h:mm AP"` for 12 h), `dateFormat`, `shortDateFormat` (date next to the clock on the hover player) |
 | `pill` | `clockWithMedia` (keep the clock while media plays), `batteryIcon` (battery as an icon only, hidden without a battery) |
 | `behavior` | `hoverToExpand`, `hoverDelay`, `leaveDelay`, `mediaPeek`, `osdTimeout`, `notifTimeout`, `peekTimeout`, `ipcTimeout` |
+| `hub` | `search`, `controlCenter` (launcher / control center buttons beside the clock in the hover view) |
 | `controlCenter` | `showBattery` (battery readout in the notifications header) |
 | `lock` | `autoLock` (lock when idle), `timeout` (seconds, default 300), `onSuspend` (lock before Sleep), `wallpaper` (blurred wallpaper behind it), `pam` (PAM service in `/etc/pam.d`, default `login`) |
 | `power` | `confirm`, `lock`, `logout`, `suspend`, `reboot`, `poweroff` (each command is a list, like `launcher.terminal`) |
