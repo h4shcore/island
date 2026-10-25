@@ -2,14 +2,16 @@ import QtQuick
 import QtQuick.Effects
 
 // One content state of the island. Pinned top-left so it lines up with the
-// shared cover art; fades, scales, drops in and de-blurs on enter, and
-// leaves quickly (iOS-style: content waits for the morph to start).
+// shared cover art; cross-fades with a gaussian blur between overlapping
+// view transitions so outgoing content blurs out while incoming content
+// blurs in smoothly without cutting to black.
 Item {
     id: view
 
     property bool active: false
     property var dims: ({ w: 100, h: 30 })
     property real pad: 16
+    property real blurAmount: 1
     property bool ready: false
 
     x: pad
@@ -18,19 +20,20 @@ Item {
     height: dims.h
 
     opacity: 0
-    scale: 0.84
+    scale: 0.90
     visible: opacity > 0.01
     enabled: active
 
     transform: Translate {
         id: shift
-        y: -12
+        y: -10
     }
 
     Component.onCompleted: {
         opacity = active ? 1 : 0
-        scale = active ? 1 : 0.84
-        shift.y = active ? 0 : -12
+        scale = active ? 1 : 0.90
+        shift.y = active ? 0 : -10
+        blurAmount = active ? 0 : 1
         ready = true
     }
 
@@ -40,9 +43,10 @@ Item {
             exitAnim.stop()
             if (opacity <= 0.01) {
                 opacity = 0
-                scale = 0.84
-                shift.y = -12
-                enterPause.duration = 90
+                scale = 0.90
+                shift.y = -10
+                blurAmount = 1
+                enterPause.duration = 45
             } else {
                 enterPause.duration = 0
             }
@@ -51,8 +55,9 @@ Item {
             enterAnim.stop()
             if (opacity <= 0.01) {
                 opacity = 0
-                scale = 0.84
-                shift.y = -12
+                scale = 0.90
+                shift.y = -10
+                blurAmount = 1
             } else {
                 exitAnim.restart()
             }
@@ -61,26 +66,31 @@ Item {
 
     SequentialAnimation {
         id: enterAnim
-        PauseAnimation { id: enterPause; duration: 90 }
+        PauseAnimation { id: enterPause; duration: 45 }
         ParallelAnimation {
-            NumberAnimation { target: view; property: "opacity"; to: 1; duration: 240; easing.type: Easing.OutCubic }
-            NumberAnimation { target: view; property: "scale"; to: 1; duration: 380; easing.type: Easing.OutBack; easing.overshoot: 1.4 }
-            SpringAnimation { target: shift; property: "y"; to: 0; spring: 4.5; damping: 0.55; epsilon: 0.05 }
+            NumberAnimation { target: view; property: "opacity"; to: 1; duration: 220; easing.type: Easing.InOutCubic }
+            NumberAnimation { target: view; property: "scale"; to: 1; duration: 340; easing.type: Easing.OutBack; easing.overshoot: 1.25 }
+            NumberAnimation { target: shift; property: "y"; to: 0; duration: 320; easing.type: Easing.OutBack; easing.overshoot: 1.2 }
+            SequentialAnimation {
+                PauseAnimation { duration: 35 }
+                NumberAnimation { target: view; property: "blurAmount"; to: 0; duration: 240; easing.type: Easing.OutCubic }
+            }
         }
     }
 
     ParallelAnimation {
         id: exitAnim
-        NumberAnimation { target: view; property: "opacity"; to: 0; duration: 90; easing.type: Easing.OutCubic }
-        NumberAnimation { target: view; property: "scale"; to: 0.84; duration: 90; easing.type: Easing.InCubic }
-        NumberAnimation { target: shift; property: "y"; to: -12; duration: 90; easing.type: Easing.InCubic }
+        NumberAnimation { target: view; property: "blurAmount"; to: 1; duration: 110; easing.type: Easing.OutQuad }
+        NumberAnimation { target: view; property: "opacity"; to: 0; duration: 170; easing.type: Easing.InOutQuad }
+        NumberAnimation { target: view; property: "scale"; to: 0.90; duration: 170; easing.type: Easing.InOutQuad }
+        NumberAnimation { target: shift; property: "y"; to: -10; duration: 170; easing.type: Easing.InOutQuad }
     }
 
     // only rasterise + blur while a transition is running (keeps text crisp at rest)
     layer.enabled: enterAnim.running || exitAnim.running
     layer.effect: MultiEffect {
         blurEnabled: true
-        blurMax: 36
-        blur: Math.min(1, (1.0 - view.opacity) * 1.2)
+        blurMax: 44
+        blur: view.blurAmount
     }
 }
