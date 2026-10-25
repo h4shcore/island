@@ -50,7 +50,7 @@ PanelWindow {
     // reserve space for the idle pill only; expanded states float over windows
     exclusionMode: ExclusionMode.Normal
     exclusiveZone: topGap + sizes.idle.h + 8
-    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "island"
     WlrLayershell.keyboardFocus: (root.mode === "launcher" || root.mode === "walls" || root.mode === "clipboard" || root.mode === "power") ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     mask: Region { item: pill }
