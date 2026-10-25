@@ -3,6 +3,7 @@
     "font": "Inter",
     "iconFont": "Material Symbols Rounded",
     "topGap": 10,
+    "notch": true,
     "shadow": true,
     "shadowOpacity": 0.55,
     "shadowBlur": 1.0,

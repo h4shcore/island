@@ -205,6 +205,8 @@ PanelWindow {
         width: dim.w
         height: dim.h
         radius: Math.min(height / 2, 36)
+        topLeftRadius: Config.notch ? 0 : radius
+        topRightRadius: Config.notch ? 0 : radius
         color: Theme.bg
         border.width: 0
 
