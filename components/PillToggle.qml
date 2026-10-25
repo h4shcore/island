@@ -11,7 +11,9 @@ Item {
     property string subtitle: ""
     property bool active: false
     property bool available: true
+    property bool more: false          // show a chevron that opens a picker
     signal clicked()
+    signal moreClicked()
 
     Rectangle {
         id: body
@@ -46,7 +48,7 @@ Item {
             anchors.left: chip.right
             anchors.leftMargin: 12
             anchors.right: parent.right
-            anchors.rightMargin: 14
+            anchors.rightMargin: t.more ? 38 : 14
             anchors.verticalCenter: parent.verticalCenter
             spacing: 0
             Txt {
@@ -72,5 +74,29 @@ Item {
         enabled: t.available
         cursorShape: Qt.PointingHandCursor
         onClicked: t.clicked()
+    }
+
+    // chevron: opens the picker (the rest of the tile still toggles)
+    Item {
+        visible: t.more
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: 42
+        Icon {
+            anchors.centerIn: parent
+            name: "chevron_right"
+            size: 20
+            color: moreMa.containsMouse ? Theme.fg : Theme.fgDim
+            Behavior on color { ColorAnimation { duration: 140 } }
+        }
+        MouseArea {
+            id: moreMa
+            anchors.fill: parent
+            hoverEnabled: true
+            enabled: t.available
+            cursorShape: Qt.PointingHandCursor
+            onClicked: t.moreClicked()
+        }
     }
 }

@@ -68,6 +68,7 @@ Singleton {
         wifi = on
         wSet.command = ["nmcli", "radio", "wifi", on ? "on" : "off"]
         wSet.running = true
+        if (on) wifiScanTimer.restart()
     }
     function toggleWifi() { setWifi(!wifi) }
 
@@ -103,6 +104,115 @@ Singleton {
         const on = airplane
         setWifi(on)
         if (btAvailable) btAdapter.enabled = on
+    }
+
+
+    // ---- bluetooth devices (picker) ----
+    readonly property var btList: {
+        if (!btOn || !Bluetooth.devices) return []
+        const v = Array.from(Bluetooth.devices.values).filter(d => d.name !== "")
+        v.sort((a, b) => (b.connected - a.connected) || (b.paired - a.paired) || a.name.localeCompare(b.name))
+        return v
+    }
+    function btScan(on) { if (btAvailable && btAdapter.enabled) btAdapter.discovering = on }
+    function btActivate(d) {
+        if (d.connected) d.disconnect()
+        else if (d.paired) d.connect()
+        else d.pair()
+    }
+
+    // ---- wi-fi networks (picker) ----
+    property var wifiList: []          // [{ ssid, signal, secure, active }]
+    property var wifiKnown: []         // saved wifi connection names
+    property bool wifiScanning: false
+    property string wifiBusy: ""       // ssid being connected
+    property string wifiMsg: ""
+
+    // nmcli -t output: fields split on ":", a literal colon is escaped as "\:"
+    function _split(line) {
+        const out = []
+        let cur = ""
+        for (let i = 0; i < line.length; i++) {
+            const ch = line[i]
+            if (ch === "\\" && i + 1 < line.length) { cur += line[i + 1]; i++ }
+            else if (ch === ":") { out.push(cur); cur = "" }
+            else cur += ch
+        }
+        out.push(cur)
+        return out
+    }
+
+    Process {
+        id: nList
+        command: ["nmcli", "-t", "-f", "IN-USE,SSID,SIGNAL,SECURITY", "dev", "wifi", "list"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const best = {}
+                text.split("\n").forEach(l => {
+                    if (!l) return
+                    const p = root._split(l)
+                    if (!p[1]) return
+                    const o = { ssid: p[1], signal: parseInt(p[2]) || 0, secure: (p[3] || "") !== "" && p[3] !== "--", active: p[0] === "*" }
+                    const e = best[o.ssid]
+                    if (!e || o.active || (!e.active && o.signal > e.signal)) best[o.ssid] = o
+                })
+                root.wifiList = Object.values(best).sort((a, b) => (b.active - a.active) || (b.signal - a.signal))
+            }
+        }
+    }
+    Process {
+        id: nKnown
+        command: ["nmcli", "-t", "-f", "NAME,TYPE", "connection", "show"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const k = []
+                text.split("\n").forEach(l => {
+                    const p = root._split(l)
+                    if (p.length >= 2 && p[p.length - 1] === "802-11-wireless") k.push(p.slice(0, p.length - 1).join(":"))
+                })
+                root.wifiKnown = k
+            }
+        }
+    }
+    Process {
+        id: nRescan
+        command: ["nmcli", "dev", "wifi", "rescan"]
+        onExited: { root.wifiScanning = false; nList.running = true }
+    }
+    Timer { id: wifiScanTimer; interval: 1500; onTriggered: root.scanWifi() }
+
+    function scanWifi() {
+        if (!wifi) { wifiList = []; return }
+        nKnown.running = true
+        nList.running = true               // show the cached list right away
+        wifiScanning = true
+        nRescan.running = true             // then refresh once the rescan is done
+    }
+
+    Process {
+        id: nConn
+        onExited: code => {
+            const s = root.wifiBusy
+            root.wifiBusy = ""
+            root.wifiMsg = code === 0 ? "" : "Couldn't connect to " + s
+            wGet.running = true; sGet.running = true; nKnown.running = true; nList.running = true
+        }
+    }
+    function connectWifi(ssid, pw) {
+        if (nConn.running) return
+        wifiMsg = ""
+        wifiBusy = ssid
+        if (pw && pw !== "") nConn.command = ["nmcli", "dev", "wifi", "connect", ssid, "password", pw]
+        else if (wifiKnown.indexOf(ssid) >= 0) nConn.command = ["nmcli", "connection", "up", "id", ssid]
+        else nConn.command = ["nmcli", "dev", "wifi", "connect", ssid]
+        nConn.running = true
+    }
+    function disconnectWifi(ssid) {
+        if (nConn.running) return
+        wifiMsg = ""
+        wifiBusy = ssid
+        nConn.command = ["nmcli", "connection", "down", "id", ssid]
+        nConn.running = true
     }
 
     // ---- misc ----

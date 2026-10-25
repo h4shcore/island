@@ -55,9 +55,10 @@ PanelWindow {
     // reserve space for the idle pill only; expanded states float over windows
     exclusionMode: ExclusionMode.Normal
     exclusiveZone: topGap + sizes.idle.h + 8
-    WlrLayershell.layer: WlrLayer.Overlay
+    // Top sits below fullscreen windows (the bar hides with them); Overlay only while something is actually showing
+    WlrLayershell.layer: (expanded || osdOn || notifOn || peekOn || Countdown.ringing) ? WlrLayer.Overlay : WlrLayer.Top
     WlrLayershell.namespace: "island"
-    WlrLayershell.keyboardFocus: (root.mode === "launcher" || root.mode === "walls" || root.mode === "clipboard" || root.mode === "power" || root.mode === "timer" || root.mode === "emoji" || root.mode === "calendar") ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: (root.mode === "launcher" || root.mode === "walls" || root.mode === "clipboard" || root.mode === "power" || root.mode === "timer" || root.mode === "emoji" || root.mode === "calendar" || centerView.typing) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     mask: Region { item: pill }
 
     // ---- state ----
@@ -193,10 +194,10 @@ PanelWindow {
     Timer { id: holdTimer;  interval: 900;  onTriggered: root.holdSeek = false }
     Timer { id: peekTimer;  interval: Config.peekTimeout; onTriggered: root.peekOn = false }
     Timer { id: enterTimer; interval: Config.hoverDelay;  onTriggered: root.expanded = true }
-    Timer { id: leaveTimer; interval: Config.leaveDelay;  onTriggered: if (!root.modal) root.expanded = false }
+    Timer { id: leaveTimer; interval: Config.leaveDelay;  onTriggered: if (!root.modal && !centerView.typing) root.expanded = false }
 
     // ---- IPC: open / toggle / close a page ----
-    Timer { id: ipcTimer; interval: Config.ipcTimeout; onTriggered: if (!root.hoverRaw) root.expanded = false }
+    Timer { id: ipcTimer; interval: Config.ipcTimeout; onTriggered: if (!root.hoverRaw && !centerView.typing) root.expanded = false }
     function openPage(p) {
         if (["main", "center", "walls", "launcher", "clipboard", "power", "timer", "emoji", "calendar", "tray"].indexOf(p) < 0) p = "center"
         page = p
