@@ -17,6 +17,10 @@ Singleton {
     readonly property string iconFont: ad.look.iconFont
     readonly property int topGap: ad.look.topGap
     readonly property bool shadow: ad.look.shadow
+    readonly property real shadowOpacity: ad.look.shadowOpacity        // 0 .. 1
+    readonly property real shadowBlur: ad.look.shadowBlur              // 0 .. 1 (softness)
+    readonly property int shadowOffset: ad.look.shadowOffset           // px the shadow drops below the island
+    readonly property string shadowColor: ad.look.shadowColor          // any colour, e.g. "#000000"
     readonly property bool sliderAccent: ad.look.sliderAccent        // true = matugen primary, false = neutral
 
     // ---- clock (Qt format strings) ----
@@ -40,6 +44,13 @@ Singleton {
 
     // ---- control center ----
     readonly property bool showBattery: ad.controlCenter.showBattery
+
+    // ---- lock screen ----
+    readonly property bool autoLock: ad.lock.autoLock                  // lock after the idle timeout
+    readonly property int lockTimeout: ad.lock.timeout                 // seconds of inactivity before auto-lock
+    readonly property bool lockOnSuspend: ad.lock.onSuspend            // lock first when you pick Sleep
+    readonly property bool lockWallpaper: ad.lock.wallpaper            // blurred wallpaper behind the lock screen
+    readonly property string lockPam: ad.lock.pam                      // PAM service in /etc/pam.d used to check the password
 
     // ---- power menu ----
     readonly property bool powerConfirm: ad.power.confirm              // ask twice before log out / restart / shut down
@@ -105,6 +116,10 @@ Singleton {
                 property string iconFont: "Material Symbols Rounded"
                 property int topGap: 10
                 property bool shadow: true
+                property real shadowOpacity: 0.55
+                property real shadowBlur: 1.0
+                property int shadowOffset: 10
+                property string shadowColor: "#000000"
                 property bool sliderAccent: true
             }
             property JsonObject clock: JsonObject {
@@ -129,9 +144,16 @@ Singleton {
             property JsonObject controlCenter: JsonObject {
                 property bool showBattery: true
             }
+            property JsonObject lock: JsonObject {
+                property bool autoLock: true
+                property int timeout: 300
+                property bool onSuspend: true
+                property bool wallpaper: true
+                property string pam: "login"
+            }
             property JsonObject power: JsonObject {
                 property bool confirm: true
-                property var lock: ["loginctl", "lock-session"]
+                property var lock: []
                 property var logout: ["sh", "-c", "niri msg action quit --skip-confirmation || hyprctl dispatch exit || swaymsg exit || loginctl terminate-user $USER"]
                 property var suspend: ["systemctl", "suspend"]
                 property var reboot: ["systemctl", "reboot"]

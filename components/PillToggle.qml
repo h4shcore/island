@@ -35,8 +35,9 @@ Item {
             Icon {
                 anchors.centerIn: parent
                 name: t.icon
-                size: 20
-                filled: true
+                size: 22
+                filled: false
+                weight: 500
                 color: t.active ? Theme.primaryFg : Theme.fg
             }
         }

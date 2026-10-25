@@ -21,7 +21,7 @@ let
   runtimeDeps = [
     brightnessctl   # brightness slider + OSD
     networkmanager  # nmcli: Wi-Fi toggle / network name
-    systemd         # loginctl: lock button
+    systemd         # loginctl
     coreutils
     findutils       # find: wallpaper scan
     cliphist        # clipboard history

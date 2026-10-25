@@ -17,9 +17,27 @@ Singleton {
         { id: "poweroff", icon: "power_settings_new", label: "Shut down", key: "p", danger: true  }
     ]
 
+    Timer {
+        id: sleepTimer
+        property var cmd: []
+        interval: 500
+        onTriggered: Quickshell.execDetached(cmd)
+    }
+
     // detached, so the action survives the shell being torn down by it
     function run(id) {
         const cmd = Config.powerCommands[id]
+        if (id === "lock") {
+            if (cmd && cmd.length > 0) Quickshell.execDetached(cmd)
+            else Lock.lock()                       // built-in lock screen
+            return true
+        }
+        if (id === "suspend" && Config.lockOnSuspend && cmd && cmd.length > 0) {
+            Lock.lock()
+            sleepTimer.cmd = cmd                   // give the compositor a moment to show the lock first
+            sleepTimer.restart()
+            return true
+        }
         if (!cmd || cmd.length === 0) {
             console.warn("island power: no command configured for", id)
             return false

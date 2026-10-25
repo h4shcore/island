@@ -26,7 +26,7 @@ PanelWindow {
         hub:    { w: 320, h: 112 },
         player: { w: 460, h: 192 },
         center: { w: 460, h: 482 },
-        power:  { w: 450, h: 128 },
+        power:  { w: 560, h: 140 },
         // pages that size themselves
         walls:     { w: wallpaperView.wantW, h: wallpaperView.wantH },
         launcher:  { w: launcherView.wantW,  h: launcherView.wantH },
@@ -219,10 +219,10 @@ PanelWindow {
         layer.enabled: true
         layer.effect: MultiEffect {
             shadowEnabled: Config.shadow
-            shadowColor: "#000000"
-            shadowOpacity: 0.55
-            shadowBlur: 1.0
-            shadowVerticalOffset: 10
+            shadowColor: Config.shadowColor
+            shadowOpacity: Config.shadowOpacity
+            shadowBlur: Config.shadowBlur
+            shadowVerticalOffset: Config.shadowOffset
         }
 
         HoverHandler {

@@ -155,7 +155,7 @@ Launcher and clipboard start in **insert** mode (just type). `Esc` goes to **nor
 | `l` `o` `s` `r` `p` | lock / log out / sleep / restart / shut down |
 | `Esc` `q` | close |
 
-Log out, restart and shut down ask twice (`power.confirm`): the first press turns the tile into **Confirm**, a second press runs it. It disarms itself after 3 s. Lock and sleep run immediately.
+Log out, restart and shut down ask twice (`power.confirm`): the first press turns the tile into **Confirm**, a second press runs it. It disarms itself after 3 s. Lock and sleep run immediately. Lock uses island's own lock screen (`ext-session-lock`, password checked with PAM); set `power.lock` to a command only if you'd rather use swaylock / hyprlock.
 
 **Wallpaper switcher**
 
@@ -190,6 +190,7 @@ island ipc call wallpaper  contrast 0.4          # -1 .. 1
 island ipc call wallpaper  accent "#42A5F5"      # or: auto
 island ipc call power      toggle | open | close
 island ipc call power      lock | logout | suspend | reboot | poweroff   # run right away, no confirm
+island ipc call lock       lock | status      # there is no unlock call, the password is the only way in
 island ipc call island     brightness 5          # +5 / -5
 island ipc call island     help
 ```
@@ -205,11 +206,12 @@ Every key is optional. On Nix use `programs.island.settings.<section>.<key>` ins
 
 | Section | Keys |
 |---|---|
-| `look` | `font`, `iconFont`, `topGap`, `shadow`, `sliderAccent` |
+| `look` | `font`, `iconFont`, `topGap`, `shadow`, `shadowOpacity`, `shadowBlur`, `shadowOffset`, `shadowColor`, `sliderAccent` |
 | `clock` | `timeFormat` (`"h:mm AP"` for 12 h), `dateFormat`, `shortDateFormat` (date next to the clock on the hover player) |
 | `pill` | `clockWithMedia` (keep the clock while media plays), `batteryIcon` (battery as an icon only, hidden without a battery) |
 | `behavior` | `hoverToExpand`, `hoverDelay`, `leaveDelay`, `mediaPeek`, `osdTimeout`, `notifTimeout`, `peekTimeout`, `ipcTimeout` |
 | `controlCenter` | `showBattery` (battery readout in the notifications header) |
+| `lock` | `autoLock` (lock when idle), `timeout` (seconds, default 300), `onSuspend` (lock before Sleep), `wallpaper` (blurred wallpaper behind it), `pam` (PAM service in `/etc/pam.d`, default `login`) |
 | `power` | `confirm`, `lock`, `logout`, `suspend`, `reboot`, `poweroff` (each command is a list, like `launcher.terminal`) |
 | `wallpapers` | `dir`, `setter`, `matugenMode`, `matugenScheme`, `matugenContrast`, `accentPresets`, `width`, `cardWidth`, `loop` |
 | `launcher` | `width`, `rows`, `maxResults`, `placeholder`, `terminal` |
@@ -239,5 +241,7 @@ Files island writes: `~/.local/state/island/wallpaper` (current image),
 | Wi-Fi tile greyed | NetworkManager not running |
 | Apps don't launch | island was started from systemd; start it from the compositor |
 | `qs` says "Non-existent attached object" | an old build, update `shell.qml` (needs `import QtQuick`) |
+| Lock screen rejects the right password | `lock.pam` names a PAM service that doesn't exist in `/etc/pam.d` |
+| Never auto-locks | compositor lacks `ext-idle-notify`, an app is inhibiting idle, or the Awake tile is on |
 | Want logs | `qs -c island` in a terminal; `qs log` for a running one |
 | Calls say "no running instances" | island isn't running yet, or you're using `qs -p` with a different path |

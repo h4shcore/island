@@ -32,7 +32,7 @@ Item {
                 anchors.centerIn: parent
                 name: t.icon
                 size: 20
-                filled: true
+                filled: false
                 color: t.active ? Theme.primaryFg : Theme.fg
             }
         }

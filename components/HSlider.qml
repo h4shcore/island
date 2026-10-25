@@ -43,8 +43,9 @@ Item {
             width: s.height
             height: s.height
             name: s.icon
-            size: 16
-            filled: true
+            size: 17
+            filled: false
+            weight: 500
             color: s.onFill
             scale: ma.pressed && ma.tap ? 0.88 : 1.0
             Behavior on scale { SpringAnimation { spring: 8; damping: 0.5; epsilon: 0.002 } }

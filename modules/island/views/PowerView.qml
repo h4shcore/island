@@ -27,6 +27,7 @@ View {
         Qt.callLater(() => powerKeys.forceActiveFocus())
         focusRetry.restart()
     }
+    pad: 24
     active: island.mode === "power"
     dims: island.sizes.power
 
@@ -82,8 +83,9 @@ View {
     }
 
     Row {
-        x: 0; y: 14
-        spacing: 12
+        x: 0
+        y: Math.round((view.height - 88) / 2)
+        spacing: 18
         Repeater {
             model: Power.actions
             delegate: Item {
@@ -93,35 +95,37 @@ View {
                 readonly property bool isSel: index === view.sel
                 readonly property bool isArmed: modelData.id === view.armed
 
-                width: 74; height: 100
+                width: 88; height: 88          // every tile is the same square
 
                 Rectangle {
                     anchors.fill: parent
-                    radius: 26
-                    color: tile.isArmed ? Theme.error : (ma.containsMouse || tile.isSel ? Theme.surfaceHiest : Theme.surfaceHi)
+                    radius: 32
+                    color: tile.isArmed ? Theme.error : (ma.containsMouse || tile.isSel ? Theme.cardHi : Theme.card)
                     border.width: tile.isSel ? 2 : 0
                     border.color: tile.isArmed ? Theme.error : Theme.primary
-                    scale: ma.pressed ? 0.94 : 1.0
+                    scale: ma.pressed ? 0.94 : (tile.isSel ? 1.05 : 1.0)
                     Behavior on color { ColorAnimation { duration: 140 } }
                     Behavior on scale { SpringAnimation { spring: 8; damping: 0.5; epsilon: 0.002 } }
 
-                    Icon {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        y: 20
-                        name: tile.modelData.icon
-                        size: 30
-                        filled: true
-                        color: tile.isArmed ? Theme.surface : Theme.fg
-                    }
-                    Txt {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        y: 64
-                        width: parent.width - 8
-                        horizontalAlignment: Text.AlignHCenter
-                        text: tile.isArmed ? "Confirm" : tile.modelData.label
-                        font.pixelSize: 12
-                        font.weight: Font.DemiBold
-                        color: tile.isArmed ? Theme.surface : Theme.fg
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 9
+                        Icon {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            name: tile.isArmed ? "check" : tile.modelData.icon
+                            size: 30
+                            weight: 400
+                            color: tile.isArmed ? Theme.bg : Theme.fg
+                        }
+                        Txt {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            width: tile.width - 12
+                            horizontalAlignment: Text.AlignHCenter
+                            text: tile.isArmed ? "Confirm" : tile.modelData.label
+                            font.pixelSize: 12
+                            font.weight: Font.DemiBold
+                            color: tile.isArmed ? Theme.bg : Theme.fg
+                        }
                     }
                 }
 

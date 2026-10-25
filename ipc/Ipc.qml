@@ -7,5 +7,6 @@ Scope {
     ClipboardIpc {}
     CenterIpc {}
     PowerIpc {}
+    LockIpc {}
     WallpaperIpc {}
 }

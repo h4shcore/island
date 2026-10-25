@@ -65,6 +65,10 @@ rec {
         iconFont = opt types.str "Material Symbols Rounded" "Icon font family.";
         topGap = opt types.int 10 "Pixels between the screen edge and the island.";
         shadow = opt types.bool true "Drop shadow under the island.";
+        shadowOpacity = opt (types.numbers.between 0.0 1.0) 0.55 "Shadow strength, 0 to 1.";
+        shadowBlur = opt (types.numbers.between 0.0 1.0) 1.0 "Shadow softness, 0 (hard) to 1 (very soft).";
+        shadowOffset = opt types.int 10 "Pixels the shadow drops below the island.";
+        shadowColor = opt types.str "#000000" "Shadow colour.";
         sliderAccent = opt types.bool true "Control-center sliders use the accent colour (false = neutral).";
       };
       clock = {
@@ -89,9 +93,16 @@ rec {
       controlCenter = {
         showBattery = opt types.bool true "Show the battery in the control center.";
       };
+      lock = {
+        autoLock = opt types.bool true "Lock the session after the idle timeout.";
+        timeout = opt types.ints.positive 300 "Seconds of inactivity before auto-lock.";
+        onSuspend = opt types.bool true "Lock first when Sleep is chosen from the power menu.";
+        wallpaper = opt types.bool true "Show the blurred wallpaper behind the lock screen.";
+        pam = opt types.str "login" "PAM service (a file in /etc/pam.d) used to verify the password.";
+      };
       power = {
         confirm = opt types.bool true "Ask twice (press again to confirm) before log out, restart and shut down.";
-        lock = opt (types.listOf types.str) [ "loginctl" "lock-session" ] "Command for Lock.";
+        lock = opt (types.listOf types.str) [ ] "Custom command for Lock (empty = use the built-in island lock screen).";
         logout = opt (types.listOf types.str)
           [ "sh" "-c" "niri msg action quit --skip-confirmation || hyprctl dispatch exit || swaymsg exit || loginctl terminate-user $USER" ]
           "Command for Log out (default tries niri, Hyprland, sway, then loginctl).";

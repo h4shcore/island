@@ -4,6 +4,10 @@
     "iconFont": "Material Symbols Rounded",
     "topGap": 10,
     "shadow": true,
+    "shadowOpacity": 0.55,
+    "shadowBlur": 1.0,
+    "shadowOffset": 10,
+    "shadowColor": "#000000",
     "sliderAccent": true
   },
   "clock": {
@@ -28,12 +32,16 @@
   "controlCenter": {
     "showBattery": true
   },
+  "lock": {
+    "autoLock": true,
+    "timeout": 300,
+    "onSuspend": true,
+    "wallpaper": true,
+    "pam": "login"
+  },
   "power": {
     "confirm": true,
-    "lock": [
-      "loginctl",
-      "lock-session"
-    ],
+    "lock": [],
     "logout": [
       "sh",
       "-c",
