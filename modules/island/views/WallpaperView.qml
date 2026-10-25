@@ -21,7 +21,7 @@ View {
     readonly property int wallStep: wallCardW + wallGap
     readonly property int wallVisible: Math.max(1, Math.floor((wallW - 32 + wallGap) / wallStep))
     readonly property int wallBodyH: Math.max(wallCardH + 8, 124)          // strip / colour panel area
-    readonly property int wallsH: 64 + wallBodyH + 10 + 16 + 22
+    readonly property int wallsH: 64 + wallBodyH + 10 + 22 + 26
     readonly property int wantW: wallW
     readonly property int wantH: wallsH
 
@@ -450,8 +450,8 @@ View {
     RowLayout {
         x: 0; y: 64 + view.wallBodyH + 10
         width: parent.width
-        height: 16
-        spacing: 12
+        height: 22
+        spacing: 16
         Txt {
             Layout.fillWidth: true
             text: view.wallTune
@@ -460,14 +460,50 @@ View {
             font.pixelSize: 11
             color: Theme.fgDim
         }
-        Txt {
-            text: view.wallTune
-                  ? "s scheme  c contrast  a accent  m mode  x reset  t back"
-                  : ((island.vimCount > 0 || island.vimPending !== "" ? (island.vimCount > 0 ? island.vimCount : "") + island.vimPending + "   " : "")
-                     + (Config.vimKeys ? "h l move  ⏎ apply  t colors  r random  esc close" : "← → move  ⏎ apply  t colors  esc close"))
-            font.pixelSize: 11
-            color: Theme.fgDim
-            opacity: 0.8
+
+        // key hints: a small keycap + a dim label each
+        Row {
+            id: hintRow
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 12
+
+            readonly property var hints: view.wallTune
+                ? [["s", "scheme"], ["c", "contrast"], ["a", "accent"], ["m", "mode"], ["x", "reset"], ["t", "back"]]
+                : (Config.vimKeys
+                    ? [["h l", "move"], ["⏎", "apply"], ["t", "colors"], ["r", "random"], ["esc", "close"]]
+                    : [["← →", "move"], ["⏎", "apply"], ["t", "colors"], ["esc", "close"]])
+            readonly property string pending: (island.vimCount > 0 ? island.vimCount : "") + island.vimPending
+
+            // vim count / pending key, shown as a highlighted cap while you type it
+            Rectangle {
+                visible: hintRow.pending !== ""
+                height: 20; width: Math.max(20, pendTxt.implicitWidth + 12); radius: 7
+                color: Theme.primary
+                anchors.verticalCenter: parent.verticalCenter
+                Txt { id: pendTxt; anchors.centerIn: parent; text: hintRow.pending; font.pixelSize: 11; font.weight: Font.DemiBold; color: Theme.primaryFg }
+            }
+
+            Repeater {
+                model: hintRow.hints
+                delegate: Row {
+                    required property var modelData
+                    spacing: 5
+                    anchors.verticalCenter: parent.verticalCenter
+                    Rectangle {
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: 20; width: Math.max(20, capTxt.implicitWidth + 12); radius: 7
+                        color: Theme.card
+                        Txt { id: capTxt; anchors.centerIn: parent; text: modelData[0]; font.pixelSize: 10; font.weight: Font.DemiBold; color: Theme.fg }
+                    }
+                    Txt {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: modelData[1]
+                        font.pixelSize: 11
+                        color: Theme.fgDim
+                        opacity: 0.85
+                    }
+                }
+            }
         }
     }
 
