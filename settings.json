@@ -1,0 +1,104 @@
+{
+  "look": {
+    "font": "Inter",
+    "iconFont": "Material Symbols Rounded",
+    "topGap": 10,
+    "shadow": true,
+    "sheen": true,
+    "sliderAccent": true
+  },
+  "clock": {
+    "timeFormat": "HH:mm",
+    "dateFormat": "dddd, d MMMM",
+    "shortDateFormat": "ddd, d MMM"
+  },
+  "pill": {
+    "clockWithMedia": true,
+    "batteryIcon": false
+  },
+  "behavior": {
+    "hoverToExpand": true,
+    "hoverDelay": 110,
+    "leaveDelay": 300,
+    "mediaPeek": true,
+    "osdTimeout": 1700,
+    "notifTimeout": 5200,
+    "peekTimeout": 3200,
+    "ipcTimeout": 6000
+  },
+  "controlCenter": {
+    "showBattery": true
+  },
+  "power": {
+    "confirm": true,
+    "lock": [
+      "loginctl",
+      "lock-session"
+    ],
+    "logout": [
+      "sh",
+      "-c",
+      "niri msg action quit --skip-confirmation || hyprctl dispatch exit || swaymsg exit || loginctl terminate-user $USER"
+    ],
+    "suspend": [
+      "systemctl",
+      "suspend"
+    ],
+    "reboot": [
+      "systemctl",
+      "reboot"
+    ],
+    "poweroff": [
+      "systemctl",
+      "poweroff"
+    ]
+  },
+  "wallpapers": {
+    "dir": "~/Pictures/wallpapers",
+    "setter": [
+      "awww",
+      "img",
+      "--transition-type",
+      "fade",
+      "--transition-duration",
+      "1",
+      "%f"
+    ],
+    "matugenMode": "dark",
+    "matugenScheme": "",
+    "matugenContrast": 0,
+    "accentPresets": [
+      "#EF5350",
+      "#FF8A65",
+      "#FFCA28",
+      "#9CCC65",
+      "#26A69A",
+      "#42A5F5",
+      "#7E57C2",
+      "#EC407A"
+    ],
+    "width": 700,
+    "cardWidth": 200,
+    "loop": true
+  },
+  "launcher": {
+    "width": 560,
+    "rows": 6,
+    "maxResults": 40,
+    "placeholder": "Search apps",
+    "terminal": [
+      "kitty"
+    ]
+  },
+  "clipboard": {
+    "width": 560,
+    "rows": 6,
+    "maxItems": 100,
+    "placeholder": "Search clipboard",
+    "watch": false
+  },
+  "keys": {
+    "vim": true,
+    "launcherStartNormal": false
+  }
+}
