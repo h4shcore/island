@@ -56,7 +56,7 @@ PanelWindow {
     exclusionMode: ExclusionMode.Normal
     exclusiveZone: topGap + sizes.idle.h + 8
     // Top sits below fullscreen windows (the bar hides with them); Overlay only while something is actually showing
-    WlrLayershell.layer: (expanded || osdOn || notifOn || peekOn || Countdown.ringing) ? WlrLayer.Overlay : WlrLayer.Top
+    WlrLayershell.layer: (expanded || (!fsActive && (osdOn || notifOn || peekOn || Countdown.ringing))) ? WlrLayer.Overlay : WlrLayer.Top
     WlrLayershell.namespace: "island"
     WlrLayershell.keyboardFocus: (root.mode === "launcher" || root.mode === "walls" || root.mode === "clipboard" || root.mode === "power" || root.mode === "timer" || root.mode === "emoji" || root.mode === "calendar" || centerView.typing) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     mask: Region { item: pill }
@@ -67,6 +67,9 @@ PanelWindow {
     property bool osdOn: false
     property bool notifOn: false
     property bool peekOn: false
+    // focused window is fullscreen: no automatic popups (peek, OSD, notifications, timer ring); only user-opened pages show
+    readonly property bool fsActive: ToplevelManager.activeToplevel !== null && ToplevelManager.activeToplevel !== undefined && ToplevelManager.activeToplevel.fullscreen
+    onFsActiveChanged: if (fsActive) { peekOn = false; peekTimer.stop(); osdOn = false; osdTimer.stop(); notifOn = false; notifTimer.stop() }
     property string page: "main"   // main | center | walls | launcher | clipboard | power | timer | emoji | calendar | tray
     // launcher, wallpaper, clipboard, power and timer pages grab the keyboard and stay open until closed
     readonly property bool modal: page === "launcher" || page === "walls" || page === "clipboard" || page === "power" || page === "timer" || page === "emoji" || page === "calendar"
@@ -84,7 +87,7 @@ PanelWindow {
         if (expanded && page === "timer") return "timer"
         if (expanded && page === "emoji") return "emoji"
         if (expanded && page === "calendar") return "calendar"
-        if (Countdown.ringing) return "timer"
+        if (Countdown.ringing && !fsActive) return "timer"
         if (notifOn) return "notif"
         if (expanded) return page === "center" ? "center" : page === "walls" ? "walls" : page === "tray" ? "tray" : (hasMedia ? "player" : (Countdown.active ? "timer" : "hub"))
         if (osdOn) return "osd"
@@ -179,11 +182,12 @@ PanelWindow {
         if (mode !== "player") { scrubbing = false; holdSeek = false }
     }
 
-    Connections { target: Osd;    function onTriggered()    { if (root.mode !== "center" && root.mode !== "walls" && root.mode !== "launcher" && root.mode !== "clipboard" && root.mode !== "power" && root.mode !== "timer" && root.mode !== "emoji" && root.mode !== "calendar") { root.osdOn = true; osdTimer.restart() } } }
-    Connections { target: Media;  function onTrackChanged() { if (!Config.mediaPeek) return; root.peekOn = true;  peekTimer.restart()  } }
+    Connections { target: Osd;    function onTriggered()    { if (!root.fsActive && root.mode !== "center" && root.mode !== "walls" && root.mode !== "launcher" && root.mode !== "clipboard" && root.mode !== "power" && root.mode !== "timer" && root.mode !== "emoji" && root.mode !== "calendar") { root.osdOn = true; osdTimer.restart() } } }
+    Connections { target: Media;  function onTrackChanged() { if (!Config.mediaPeek || root.fsActive) return; root.peekOn = true;  peekTimer.restart()  } }
     Connections {
         target: Notifs
         function onArrived() {
+            if (root.fsActive) return
             root.notifOn = true
             if (root.hoverRaw) notifTimer.stop(); else notifTimer.restart()
         }
